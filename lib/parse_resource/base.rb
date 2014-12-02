@@ -289,7 +289,7 @@ module ParseResource
       @@settings ||= begin
         path = "config/parse_resource.yml"
         environment = defined?(Rails) && Rails.respond_to?(:env) ? Rails.env : ENV["RACK_ENV"]
-        if FileTest.exist? (path) 
+        if FileTest.exist? (path)
           YAML.load(ERB.new(File.new(path).read).result)[environment]
         elsif ENV["PARSE_RESOURCE_APPLICATION_ID"] && ENV["PARSE_RESOURCE_MASTER_KEY"]
           settings = HashWithIndifferentAccess.new
@@ -454,11 +454,11 @@ module ParseResource
     def merge_attributes(results)
       @attributes.merge!(results)
       @attributes.merge!(@unsaved_attributes)
-      
+
       merge_relations
       @unsaved_attributes = {}
 
-      
+
       create_setters_and_getters!
       @attributes
     end
@@ -630,11 +630,7 @@ module ParseResource
           @unsaved_attributes[k] = RelationArray.new self, objects_related_to_self, k, klass_name
           result = @unsaved_attributes[k]
         else
-          if attrs[k].is_a?(Hash)
-            result = attrs[k]
-          else
-            raise "Unknown data type: #{attrs[k].class}"
-          end
+          result = attrs[k]
         end #todo: support other types https://www.parse.com/docs/rest#objects-types
       else
         #relation will assign itself if an array, this will add to unsave_attributes
