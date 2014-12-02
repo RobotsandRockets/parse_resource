@@ -629,6 +629,12 @@ module ParseResource
           attrs[k] = RelationArray.new self, objects_related_to_self, k, klass_name
           @unsaved_attributes[k] = RelationArray.new self, objects_related_to_self, k, klass_name
           result = @unsaved_attributes[k]
+        else
+          if attrs[k].is_a?(Hash)
+            result = attrs[k]
+          else
+            raise "Unknown data type: #{attrs[k].class}"
+          end
         end #todo: support other types https://www.parse.com/docs/rest#objects-types
       else
         #relation will assign itself if an array, this will add to unsave_attributes
