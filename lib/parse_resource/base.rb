@@ -440,7 +440,7 @@ module ParseResource
     end
 
     def update(attributes = {})
-      run_callbacks :create do
+      run_callbacks :update do
         attributes = HashWithIndifferentAccess.new(attributes)
 
         @unsaved_attributes.merge!(attributes)
