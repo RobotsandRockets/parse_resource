@@ -185,7 +185,10 @@ module ParseResource
 
     # Gets the current class's model name for the URI
     def self.model_name_uri
-      if self.model_name.to_s == "User"
+      # This is a workaround to allow the user to specify a custom class
+      if defined?(self.parse_class_name)
+        "classes/#{self.parse_class_name}"
+      elsif self.model_name.to_s == "User"
         "users"
       elsif self.model_name.to_s == "Installation"
         "installations"
@@ -337,6 +340,15 @@ module ParseResource
       raise RecordNotFound, "Couldn't find #{name} without an ID" if id.blank?
       record = where(:objectId => id).first
       raise RecordNotFound, "Couldn't find #{name} with id: #{id}" if record.blank?
+      record
+    end
+
+    # Find a ParseResource::Base object by given key/value pair
+    #
+    def self.find_by(*args)
+      raise RecordNotFound, "Couldn't find an object without arguments" if args.blank?
+      key, value = args.first.first
+      record = where(key => value).first
       record
     end
 
@@ -566,6 +578,11 @@ module ParseResource
 
     def update_attributes(attributes = {})
       self.update(attributes)
+    end
+
+    def update_attribute(key, value)
+      send(key.to_s + '=', value)
+      update
     end
 
     def destroy
