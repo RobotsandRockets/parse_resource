@@ -10,7 +10,7 @@ class ParseRole < ParseResource::Base
   end
 
   def self.create(attributes)
-    base_uri   = "https://api.parse.com/1/roles"
+    base_uri   = "#{settings['api_url']}/roles"
     app_id     = settings['app_id']
     master_key = settings['master_key']
     resource = RestClient::Resource.new(base_uri, app_id, master_key)
@@ -30,7 +30,7 @@ class ParseRole < ParseResource::Base
 
   def add_user(user)
     # Expects user parameter to be a ParseUser object
-    base_uri   = "https://api.parse.com/1/roles/#{self.objectId}"
+    base_uri   = "#{self.class.settings['api_url']}/roles/#{self.objectId}"
     app_id     = self.class.settings['app_id']
     master_key = self.class.settings['master_key']
     resource = RestClient::Resource.new(base_uri, app_id, master_key)
@@ -49,7 +49,7 @@ class ParseRole < ParseResource::Base
   def remove_user(user)
     # Expects user parameter to be a ParseUser object
     
-    base_uri   = "https://api.parse.com/1/roles/#{self.objectId}"
+    base_uri   = "#{self.class.settings['api_url']}/roles/#{self.objectId}"
     app_id     = self.class.settings['app_id']
     master_key = self.class.settings['master_key']
     resource = RestClient::Resource.new(base_uri, app_id, master_key)
