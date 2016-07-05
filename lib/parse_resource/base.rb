@@ -231,6 +231,7 @@ module ParseResource
       return true if save_objects.blank?
       load_settings
 
+      base_path = File.basename(@@settings['api_url'])
       base_uri = "#{@@settings['api_url']}/batch"
       app_id     = @@settings['app_id']
       master_key = @@settings['master_key']
@@ -244,7 +245,7 @@ module ParseResource
 
         objects.each do |item|
           method ||= (item.new?) ? "POST" : "PUT"
-          object_path = "/1/#{item.class.model_name_uri}"
+          object_path = "/#{base_path}/#{item.class.model_name_uri}"
           object_path = "#{object_path}/#{item.id}" if item.id
           json = {
             "method" => method,
