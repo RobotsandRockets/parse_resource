@@ -446,27 +446,29 @@ module ParseResource
     end
 
     def create
-      run_callbacks :create do
-        attrs = attributes_for_saving.to_json
-        opts = {:content_type => "application/json"}
-        result = self.resource.post(attrs, opts) do |resp, req, res, &block|
-          return post_result(resp, req, res, &block)
+      if valid?
+        run_callbacks :create do
+          attrs = attributes_for_saving.to_json
+          opts = {:content_type => "application/json"}
+          result = self.resource.post(attrs, opts) do |resp, req, res, &block|
+            return post_result(resp, req, res, &block)
+          end
         end
+      else
+        false
       end
+    rescue
+      false
     end
 
     def update(attributes = {})
-      run_callbacks :update do
-        attributes = HashWithIndifferentAccess.new(attributes)
-
-        @unsaved_attributes.merge!(attributes)
-        put_attrs = attributes_for_saving.to_json
-
-        opts = {:content_type => "application/json"}
-        result = self.instance_resource.put(put_attrs, opts) do |resp, req, res, &block|
-          return post_result(resp, req, res, &block)
-        end
+      if valid?
+        update_attributes(attributes)
+      else
+        false
       end
+    rescue
+      false
     end
 
     # Merges in the return value of a save and resets the unsaved_attributes
@@ -581,12 +583,19 @@ module ParseResource
     end
 
     def update_attributes(attributes = {})
-      self.update(attributes)
+      attributes = HashWithIndifferentAccess.new(attributes)
+
+      @unsaved_attributes.merge!(attributes)
+      put_attrs = attributes_for_saving.to_json
+
+      opts = {:content_type => "application/json"}
+      result = self.instance_resource.put(put_attrs, opts) do |resp, req, res, &block|
+        return post_result(resp, req, res, &block)
+      end
     end
 
     def update_attribute(key, value)
-      send(key.to_s + '=', value)
-      update
+      update_attributes({ key => value })
     end
 
     def destroy
