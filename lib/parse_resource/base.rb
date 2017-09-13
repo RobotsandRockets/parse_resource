@@ -176,8 +176,25 @@ module ParseResource
     #
     # @param [String] app_id the Application ID of your Parse database
     # @param [String] master_key the Master Key of your Parse database
-    def self.load!(app_id, master_key, api_url = 'https://api.parse.com/1')
-      @@settings = {"app_id" => app_id, "master_key" => master_key, "api_url" => api_url}
+    def self.load!(app_id, master_key, api_url = 'https://api.parse.com/1', session_token = nil)
+      @@settings = {"app_id" => app_id, "master_key" => master_key, "api_url" => api_url, "session_token" => session_token}
+    end
+
+    def self.session_token=(session_token)
+      @@settings['session_token'] = session_token
+    end
+
+    def self.request_headers
+      headers = {
+        content_type: "application/json",
+        x_parse_application_id: @@settings['app_id'],
+      }
+      if @@settings['session_token'].nil?
+        headers[:x_parse_master_key] = @@settings['master_key']
+      else
+        headers[:x_parse_session_token] = @@settings['session_token']
+      end
+      headers
     end
 
     def self.settings
@@ -218,11 +235,7 @@ module ParseResource
     #
     def self.resource
       load_settings
-
-      #refactor to settings['app_id'] etc
-      app_id     = @@settings['app_id']
-      master_key = @@settings['master_key']
-      RestClient::Resource.new(self.model_base_uri, app_id, master_key)
+      RestClient::Resource.new(self.model_base_uri, headers: self.request_headers)
     end
 
     # Batch requests
@@ -236,10 +249,8 @@ module ParseResource
 
       base_path = File.basename(@@settings['api_url'])
       base_uri = "#{@@settings['api_url']}/batch"
-      app_id     = @@settings['app_id']
-      master_key = @@settings['master_key']
 
-      res = RestClient::Resource.new(base_uri, app_id, master_key)
+      res = RestClient::Resource.new(base_uri, headers: self.request_headers)
 
       # Batch saves seem to fail if they're too big. We'll slice it up into multiple posts if they are.
       save_objects.each_slice(slice_size) do |objects|
@@ -319,16 +330,12 @@ module ParseResource
 
       base_uri = "#{@@settings['api_url']}/files"
 
-      #refactor to settings['app_id'] etc
-      app_id     = @@settings['app_id']
-      master_key = @@settings['master_key']
-
       options[:content_type] ||= 'image/jpg' # TODO: Guess mime type here.
       file_instance = File.new(file_instance, 'rb') if file_instance.is_a? String
 
       filename = filename.parameterize
 
-      private_resource = RestClient::Resource.new "#{base_uri}/#{filename}", app_id, master_key
+      private_resource = RestClient::Resource.new "#{base_uri}/#{filename}", headers: self.request_headers
       private_resource.post(file_instance, options) do |resp, req, res, &block|
         return false if resp.code == 400
         return JSON.parse(resp) rescue {"code" => 0, "error" => "unknown error"}

@@ -11,9 +11,7 @@ class ParseRole < ParseResource::Base
 
   def self.create(attributes)
     base_uri   = "#{settings['api_url']}/roles"
-    app_id     = settings['app_id']
-    master_key = settings['master_key']
-    resource = RestClient::Resource.new(base_uri, app_id, master_key)
+    resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
     data = {"name" => attributes[:name],
             "ACL" => {
               "*" => {
@@ -31,9 +29,7 @@ class ParseRole < ParseResource::Base
   def add_user(user)
     # Expects user parameter to be a ParseUser object
     base_uri   = "#{self.class.settings['api_url']}/roles/#{self.objectId}"
-    app_id     = self.class.settings['app_id']
-    master_key = self.class.settings['master_key']
-    resource = RestClient::Resource.new(base_uri, app_id, master_key)
+    resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
     data = {"users" => {"__op" => "AddRelation", 
                         "objects" => [{"__type" => "Pointer", 
                                        "className" => "_User", 
@@ -50,9 +46,7 @@ class ParseRole < ParseResource::Base
     # Expects user parameter to be a ParseUser object
     
     base_uri   = "#{self.class.settings['api_url']}/roles/#{self.objectId}"
-    app_id     = self.class.settings['app_id']
-    master_key = self.class.settings['master_key']
-    resource = RestClient::Resource.new(base_uri, app_id, master_key)
+    resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
     data = {"users" => {"__op" => "RemoveRelation", 
                         "objects" => [{"__type" => "Pointer", 
                                        "className" => "_User", 

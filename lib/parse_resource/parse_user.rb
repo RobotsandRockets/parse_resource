@@ -5,9 +5,7 @@ class ParseUser < ParseResource::Base
 
   def self.authenticate(username, password)
     base_uri   = "#{settings['api_url']}/login"
-    app_id     = settings['app_id']
-    master_key = settings['master_key']
-    resource = RestClient::Resource.new(base_uri, app_id, master_key)
+    resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
     
     begin
       resp = resource.get(:params => {:username => username, :password => password})
@@ -17,14 +15,11 @@ class ParseUser < ParseResource::Base
     rescue 
       false
     end
-    
   end
   
   def self.authenticate_with_facebook(user_id, access_token, expires)
     base_uri   = "#{settings['api_url']}/users"
-    app_id     = settings['app_id']
-    master_key = settings['master_key']
-    resource = RestClient::Resource.new(base_uri, app_id, master_key)
+    resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
 
     begin
       resp = resource.post(
@@ -47,9 +42,7 @@ class ParseUser < ParseResource::Base
   
   def self.reset_password(email)
       base_uri   = "#{settings['api_url']}/requestPasswordReset"
-      app_id     = settings['app_id']
-      master_key = settings['master_key']
-      resource = RestClient::Resource.new(base_uri, app_id, master_key)
+      resource = RestClient::Resource.new(base_uri, headers: self.request_headers)
 
       begin
         resp = resource.post({:email => email}.to_json, :content_type => 'application/json')
