@@ -22,8 +22,8 @@ class Query
   end
 
   def limit(limit)
-    # If > 1000, set chunking, because large queries over 1000 need it with Parse
-    chunk(1000) if limit > 1000
+    # If > 10000, set chunking, because large queries over 1000 need it with Parse
+    chunk(10000) if limit > 10000
 
     criteria[:limit] = limit
     self
