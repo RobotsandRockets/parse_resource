@@ -42,6 +42,19 @@ class Query
     self
   end
   
+  def select(parent)
+    criteria[:select] ||= []
+
+    if parent.is_a?(Array)
+      parent.each do |item|
+        criteria[:select] << item
+      end
+    else
+      criteria[:select] << parent
+    end
+    self
+  end
+
   def order(attr)
     orders = attr.split(" ")
     if orders.count > 1
@@ -118,6 +131,7 @@ class Query
     params.merge!({:skip => criteria[:skip].to_json}) if criteria[:skip]
     params.merge!({:count => criteria[:count].to_json}) if criteria[:count]
     params.merge!({:include => criteria[:include].join(',')}) if criteria[:include]
+    params.merge!({:keys => criteria[:select].join(',')}) if criteria[:select]
     params.merge!({:order => criteria[:order]}) if criteria[:order]
 
     return chunk_results(params) if criteria[:chunk]

@@ -13,6 +13,10 @@ module ParseResource
 	      Query.new(self).include_object(parent)
 	    end
 
+      def select(parent)
+        Query.new(self).select(parent)
+      end
+
 	    # Add this at the end of a method chain to get the count of objects, instead of an Array of objects
 	    def count
 	      #https://www.parse.com/docs/rest#queries-counting
