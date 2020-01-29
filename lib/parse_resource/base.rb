@@ -176,23 +176,27 @@ module ParseResource
     #
     # @param [String] app_id the Application ID of your Parse database
     # @param [String] master_key the Master Key of your Parse database
-    def self.load!(app_id, master_key, api_url = 'https://api.parse.com/1', session_token = nil)
-      @@settings = {"app_id" => app_id, "master_key" => master_key, "api_url" => api_url, "session_token" => session_token}
+    def self.load!(app_id, rest_api_key, master_key, api_url = 'https://api.parse.com/1', session_token = nil)
+      @@settings = {"app_id" => app_id, "rest_api_key" => rest_api_key, "master_key" => master_key, "api_url" => api_url, "session_token" => session_token, "use_master_key" => false }
     end
 
     def self.session_token=(session_token)
       @@settings['session_token'] = session_token
     end
 
+    def self.use_master_key!
+      @@settings['use_master_key'] = true
+    end
+
     def self.request_headers
       headers = {
         content_type: "application/json",
         x_parse_application_id: @@settings['app_id'],
+        x_parse_rest_api_key: @@settings['rest_api_key'],
+        x_parse_session_token: @@settings['session_token']
       }
-      if @@settings['session_token'].nil?
+      if @@settings['use_master_key']
         headers[:x_parse_master_key] = @@settings['master_key']
-      else
-        headers[:x_parse_session_token] = @@settings['session_token']
       end
       headers
     end
