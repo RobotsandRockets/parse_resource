@@ -197,6 +197,7 @@ module ParseResource
       }
       if @@settings['use_master_key']
         headers[:x_parse_master_key] = @@settings['master_key']
+        headers.delete(:x_parse_session_token)
       end
       headers
     end
