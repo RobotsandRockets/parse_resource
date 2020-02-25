@@ -264,7 +264,12 @@ module ParseResource
 
         objects.each do |item|
           method ||= (item.new?) ? "POST" : "PUT"
-          object_path = "/#{base_path}/#{item.class.model_name_uri}"
+          object_path =
+            if base_path =~ /back4app/
+              "/#{item.class.model_name_uri}"
+            else
+              "/#{base_path}/#{item.class.model_name_uri}"
+            end
           object_path = "#{object_path}/#{item.id}" if item.id
           json = {
             "method" => method,
